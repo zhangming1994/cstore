@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>后台管理中心</title>
+<style type="text/css">
+.ui{font-size:30px;}
+</style>
+</head>
+
+<body>
+<div class="ui">
+<h6>学生管理<small><img src="/static/img/right.png" />查找学生</small></h6>
+</div>
+<form action="../student/sel" method="post">
+<div class="hui" align="center">
+<input type="hidden" name="isAction" value="0"/>
+<input type="text" name="hu" />
+<input type="submit" value="查找" onclick=""  />
+</form>
+<div >
+	<form>
+		<table border="1px">
+			<tr>
+				<th width="40px">ID</th>
+				<th width="200px">学生编号</th>
+				<th width="60px">姓名</th>
+				<th width="60px">年龄</th>
+				<th width="60px">性别</th>
+			</tr>
+		</table>
+	</form>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>列表</title>
+
+		<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css" />
+	    <link rel="stylesheet" type="text/css" href="/static/css/dataTables.bootstrap.css">
+		<link rel="stylesheet" href="/static/css/select2.css" />
+ 		<link rel="stylesheet" href="/static/css/matrix-style.css" />
+
+		<script type="text/javascript" language="javascript" src="/static/datatable/jquery-1.10.2.min.js"></script>
+		<script type="text/javascript" language="javascript" src="/static/js/jquery.dataTables.min.js"></script>
+		<script type="text/javascript" language="javascript" src="/static/js/dataTables.bootstrap.js"></script>
+	
+		<script type="text/javascript">
+		// 点击搜索
+		function searchAll(){
+			var name  = $("#searchName").val();
+			alert(name);
+			$('#example').DataTable().column(1).search(name).draw();
+		}
+
+		var oTable;
+		$(document).ready(function() {
+		       oTable = initTable();
+		    });
+		    function initTable() {
+		         var actionUrl='../student/list';
+		         var table = $('#example').dataTable({
+		            "bDestory": true,
+			        "bRetrieve": true,
+			        "bFilter": true,
+			        "bAutoWidth": false,
+			        "sPaginationType": 'full_numbers',
+			        "bPaginate": true, //翻页功能
+			        "bDestroy": true,
+			        "bProcessing": true,
+			        "sAjaxSource": actionUrl,
+			        "iDisplayLength": 10,
+			        "aLengthMenu": [
+			            [10, 15, 20, 50, -1],
+			            [10, 15, 20, 50, "All"]
+			        ],
+			        "bServerSide": true,
+			        "bSort": false,
+		            "aoColumns" : [ 
+		            	 {
+			                "mDataProp": "Id",
+			                "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+			                    $(nTd).html("<input type='checkbox' align='center' name='checkList' value='" + sData + "'>"); }
+					      },
+		            	 {"mDataProp" : "Id",},
+		                 {"mDataProp" : "Stid",},
+		                 {"mDataProp" : "Name",},
+		                 {"mDataProp" : "Typename",}, 
+		                 {"mDataProp" : "Age",},
+		                  {
+			                "mDataProp": "Id",
+			                "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+			                    $(nTd).html("<a href='./update?Id="+ oData.Id + "&Name= "+ oData.Name +"&Age= "+ oData.Age + "&Stid=" + oData.Stid + "&Sex=" + oData.Sex +"'>编辑</a>&nbsp;&nbsp;")
+			                        .append("<a href='javascript:void(0);' onclick='_deleteStudent(" + sData + ")'>删除</a>");
+			                }
+            			}
+
+		            ],
+		            "ColumnDefs":[
+		            {
+						"targets":[2],
+						"visible":false,
+						"searchable":false
+		            }
+		            ],
+		            "oLanguage" : {
+		                "sProcessing" : "正在加载中......",
+		                "sLengthMenu" : "每页显示 _MENU_ 条记录",
+		                "sZeroRecords" : "没有数据！",
+		                "sEmptyTable" : "表中无数据存在！",
+		                "sInfo" : " _START_ - _END_ 条，共 _TOTAL_ 条",
+		                "sInfoEmpty" : "显示0到0条记录",
+		                "sInfoFiltered" : "数据表中共为 _MAX_ 条记录",
+		                "oPaginate" : {
+		                    "sFirst" : "首页",
+		                    "sPrevious" : "上一页",
+		                    "sNext" : "下一页",
+		                    "sLast" : "末页"
+		                }
+		            }
+		        });
+				return table;
+		    }
+		 
+		 function _editStudent(Id, Name, Url, Type, Level, Pid, Key, Description) {
+		 	  $.ajax({
+		        url: "/cstore/student/update",
+		        data: {"isAction":1,"Id": Id,"Name":Name,"Url":Url,"Type":Type,"Level":Level,"Pid":Pid,"Key":Key,"Description":Description},
+		        type: "post",
+		        success: function (r) {
+		            if (r.status) {
+		                oTable.fnReloadAjax(oTable.fnSettings());
+		            } else {
+		                alert(r.info);
+		            }
+		        }, error: function (error) {
+		            console.log(error);
+		        }
+		    });
+		 }
+		    /**
+		 * 删除
+		 * @param id
+		 * @private
+		 */
+		function _deleteStudent(id) {
+		    $.ajax({
+		        url: "/cstore/student/del",
+		        data: {"Id": id},
+		        type: "post",
+		        success: function (r) {
+		            if (r.status) {
+		                oTable.fnReloadAjax(oTable.fnSettings());
+		            } else {
+		                alert(r.info);
+		            }
+		        }, error: function (error) {
+		            console.log(error);
+		        }
+		    });
+		}
+
+	/**
+	table刷新表格
+	*/ 
+ 	$.fn.dataTableExt.oApi.fnReloadAjax = function (oSettings) {
+	    this.fnClearTable(this);
+	    this.oApi._fnProcessingDisplay(oSettings, true);
+	    var that = this;
+	 
+	    $.getJSON(oSettings.sAjaxSource, null, function (json) {
+	        /* Got the data - add it to the table */
+	        for (var i = 0; i < json.aaData.length; i++) {
+	            that.oApi._fnAddData(oSettings, json.aaData[i]);
+	        }
+	        oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+	        that.fnDraw(that);
+	        that.oApi._fnProcessingDisplay(oSettings, false);
+	    });
+	}
+
+	
+		</script>
+	</head>
+
+	<body> 
+		<div>
+ 			 <h3>资源管理 <img src="/static/img/right.png"><small>资源列表</small></h3>
+	 			 <div class="cen_left_line">
+	 			 <hr width=100% size=1 color=#00ffff style="FILTER: alpha(opacity=100,finishopacity=0,style=3)">
+				</div>
+		</div>
+		<div class="form-group">
+			<div class="form-inline">
+			  <div class="form-group">
+			    <label for="searchName">姓名</label>
+			    <input type="text" class="form-control" id="searchName" name="searchName" placeholder="Jane Doe">
+			  </div>
+			  <button type="submit" class="btn btn-default" onclick="searchAll()">搜索</button>
+			</div>
+		</div>
+		<div>
+			<table class="table table-bordered data-table" cellpadding="0" cellspacing="0" border="1" class="display"
+				id="example">
+				<thead>
+					<tr>	
+						<th style="width:1%" align="left"><input type="checkbox" style="left: auto; " id='checkAll' style=""></th>
+						<th style="width:5%">Id</th>
+						<th style="width:15%">stid</th>
+						<th style="width:5%">姓名</th>
+						<th style="width:5%">性别</th>
+						<th style="width:5%">年龄</th>
+						<th style="width:5%">操作</th>
+					</tr>
+				</thead>
+				<tbody id="data_body">
+				</tbody>
+				
+			</table>
+		</div>
+
+		   
+	</body>
+</html>
